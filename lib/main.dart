@@ -6,18 +6,17 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: "Clash Of Bakid",
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Class Of Bakid'),
-          centerTitle: true,
-          backgroundColor: Colors.blue[500],
+          title: const Text("Clash Of Bakid"),
+          backgroundColor: Colors.blue,
         ),
-        body: Center(child: Text('GAME (1)')),
+        body: Center(child: Text("Game Babak 1")),
       ),
     );
   }
