@@ -1,3 +1,4 @@
+import 'package:coc/presentation/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,9 +30,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             password: _passwordController.text.trim(),
           );
 
-      // Navigasi ke home dengan membawa data user
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home', arguments: userData);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(userData: userData)),
+        );
       }
     } catch (e) {
       if (mounted) {

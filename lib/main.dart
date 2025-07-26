@@ -1,30 +1,27 @@
+import 'package:coc/presentation/home_page.dart';
+import 'package:coc/presentation/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'app_router.dart';
-import 'core/supabase_config.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SupabaseConfig.initialize();
-
-  runApp(const ProviderScope(child: MyApp()));
-}
-
-class MyApp extends ConsumerWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
-
-    return MaterialApp.router(
-      title: 'COC',
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Game COC',
       debugShowCheckedModeBanner: false,
-      routerConfig: router,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      initialRoute: '/login',
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/login':
+            return MaterialPageRoute(builder: (_) => const LoginPage());
+          case '/home':
+            final args = settings.arguments as Map<String, dynamic>? ?? {};
+            return MaterialPageRoute(builder: (_) => HomePage(userData: args));
+          default:
+            return MaterialPageRoute(builder: (_) => const LoginPage());
+        }
+      },
     );
   }
 }

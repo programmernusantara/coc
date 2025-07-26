@@ -10,8 +10,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(
         path: '/home',
-        builder: (context, state) =>
-            HomePage(userData: state.extra as Map<String, dynamic>),
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>? ?? {};
+          return HomePage(userData: args);
+        },
       ),
     ],
   );

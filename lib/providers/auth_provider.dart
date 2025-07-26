@@ -8,18 +8,17 @@ final authProvider = Provider<AuthProvider>((ref) {
 class AuthProvider {
   final _supabase = SupabaseConfig.client;
 
-  Future<Map<String, dynamic>?> signInWithIdPassword({
+  Future<Map<String, dynamic>> signInWithIdPassword({
+    // Hapus ? di return type
     required String userId,
     required String password,
   }) async {
-    // Query ke tabel users
     final response = await _supabase
         .from('users')
         .select()
         .eq('user_id', userId)
         .single();
 
-    // Verifikasi password (dalam produksi, gunakan hash yang aman)
     if (response['password_hash'] != password) {
       throw Exception('ID atau password salah');
     }
