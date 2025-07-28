@@ -5,13 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 class ResultPage extends StatelessWidget {
   final bool isCorrect;
   final Map<String, dynamic> userData;
+  final String gameType;
+  final double score;
 
   const ResultPage({
     super.key,
     required this.isCorrect,
     required this.userData,
-    required String gameType,
-    required double score,
+    required this.gameType,
+    required this.score,
   });
 
   @override

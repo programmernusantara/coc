@@ -40,7 +40,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
       setState(() {
         _question = response['question'] ?? 'Pilih angka dari 1-10';
         _correctAnswer = response['correct_answer'] ?? 7;
-        _questionId = response['id'] ?? 0;
+        _questionId = response['id']; // Jangan beri nilai default 0
         _isLoading = false;
       });
     } catch (e) {
@@ -48,6 +48,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
       setState(() {
         _question = 'Pilih angka dari 1-10';
         _correctAnswer = 7;
+        _questionId = -1; // Gunakan nilai khusus untuk menandai error
         _isLoading = false;
       });
     }
@@ -61,13 +62,20 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
     try {
       final isCorrect = selectedNumber == _correctAnswer;
 
-      await SupabaseConfig.client.from('game_results').insert({
+      // Siapkan data untuk disimpan
+      final data = {
         'user_id': widget.userData['user_id'],
         'game_type': 'number_game',
-        'question_id': _questionId,
         'user_answer': selectedNumber,
         'is_correct': isCorrect,
-      });
+      };
+
+      // Hanya tambahkan question_id jika valid (bukan -1 dan tidak null)
+      if (_questionId != -1) {
+        data['question_id'] = _questionId;
+      }
+
+      await SupabaseConfig.client.from('game_results').insert(data);
 
       if (!mounted) return;
 
@@ -78,6 +86,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
             isCorrect: isCorrect,
             userData: widget.userData,
             gameType: 'number_game',
+            score: isCorrect ? 1.0 : 0.0,
           ),
         ),
       );
