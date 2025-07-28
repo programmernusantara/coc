@@ -1,6 +1,16 @@
 import 'package:coc/presentation/home_page.dart';
 import 'package:coc/presentation/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:coc/core/supabase_config.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SupabaseConfig.initialize();
+
+  runApp(ProviderScope(child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
