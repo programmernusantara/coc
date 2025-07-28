@@ -1,6 +1,6 @@
 import 'package:coc/core/supabase_config.dart';
-import 'package:coc/presentation/login_page.dart';
 import 'package:coc/presentation/game_1/result_page.dart';
+import 'package:coc/presentation/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +20,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
   bool _isLoading = true;
   String _question = '';
   int _correctAnswer = 0;
+  int _questionId = 0;
 
   @override
   void initState() {
@@ -39,9 +40,11 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
       setState(() {
         _question = response['question'] ?? 'Pilih angka dari 1-10';
         _correctAnswer = response['correct_answer'] ?? 7;
+        _questionId = response['id'] ?? 0;
         _isLoading = false;
       });
     } catch (e) {
+      // Fallback jika database error
       setState(() {
         _question = 'Pilih angka dari 1-10';
         _correctAnswer = 7;
@@ -51,7 +54,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
   }
 
   Future<void> _submitAnswer() async {
-    if (selectedNumber == null) return;
+    if (selectedNumber == null || _isSubmitting) return;
 
     setState(() => _isSubmitting = true);
 
@@ -61,19 +64,23 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
       await SupabaseConfig.client.from('game_results').insert({
         'user_id': widget.userData['user_id'],
         'game_type': 'number_game',
+        'question_id': _questionId,
         'user_answer': selectedNumber,
         'is_correct': isCorrect,
       });
 
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                ResultPage(isCorrect: isCorrect, userData: widget.userData),
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultPage(
+            isCorrect: isCorrect,
+            userData: widget.userData,
+            gameType: 'number_game',
           ),
-        );
-      }
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -94,6 +101,17 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Game Pilihan Angka',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xFF4FC3F7),
+        centerTitle: true,
+      ),
       body: CustomPaint(
         painter: GridBackgroundPainter(),
         child: Center(
@@ -125,11 +143,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
                   itemBuilder: (context, index) {
                     final number = index + 1;
                     return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedNumber = number;
-                        });
-                      },
+                      onTap: () => setState(() => selectedNumber = number),
                       child: Container(
                         decoration: BoxDecoration(
                           color: selectedNumber == number
@@ -166,7 +180,6 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
                         : _submitAnswer,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4FC3F7),
-                      elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -187,7 +200,6 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                               color: Colors.white,
-                              letterSpacing: 0.5,
                             ),
                           ),
                   ),

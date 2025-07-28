@@ -1,6 +1,4 @@
 import 'package:coc/presentation/game_1/number_game_page.dart';
-import 'package:coc/presentation/game_2/card_sorting_page.dart';
-import 'package:coc/presentation/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -27,65 +25,86 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: const Color(0xFF4FC3F7),
         centerTitle: true,
+        elevation: 0,
       ),
       body: CustomPaint(
         painter: GridBackgroundPainter(),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                'Selamat Datang, ${widget.userData['nama']}!',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Asrama ${widget.userData['asrama']} - Kelas ${widget.userData['kelas']}',
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.black54),
+              ),
+              const SizedBox(height: 30),
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: 0.95,
+                  children: [
+                    _buildGameCard(
+                      title: 'Game 1',
+                      icon: Icons.looks_one_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                NumberGamePage(userData: widget.userData),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGameCard({
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      elevation: 3,
+      borderRadius: BorderRadius.circular(20),
+      color: Colors.white.withAlpha(240),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/logo.png', // Pastikan ada logo di folder assets
-                  height: 150,
-                ),
-                const SizedBox(height: 30),
+                Icon(icon, size: 48, color: Color(0xFF4FC3F7)),
+                const SizedBox(height: 12),
                 Text(
-                  'Selamat Datang, ${widget.userData['nama']}!',
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Asrama ${widget.userData['asrama']} - Kelas ${widget.userData['kelas']}',
+                  title,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
-                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
                   ),
-                ),
-                const SizedBox(height: 40),
-                _buildGameCard(
-                  context,
-                  'Game 1: Pilihan Angka',
-                  'Pilih angka yang benar dari 1-10',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            NumberGamePage(userData: widget.userData),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildGameCard(
-                  context,
-                  'Game 2: Mengurutkan Kartu',
-                  'Susun kartu dalam urutan yang benar',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            CardSortingGamePage(userData: widget.userData),
-                      ),
-                    );
-                  },
                 ),
               ],
             ),
@@ -94,41 +113,26 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
 
-  Widget _buildGameCard(
-    BuildContext context,
-    String title,
-    String subtitle,
-    VoidCallback onTap,
-  ) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(15),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF4FC3F7),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black54),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+// Tetap gunakan GridBackgroundPainter seperti di login
+class GridBackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withAlpha(50)
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x <= size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y <= size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

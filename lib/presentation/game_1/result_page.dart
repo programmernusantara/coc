@@ -10,6 +10,8 @@ class ResultPage extends StatelessWidget {
     super.key,
     required this.isCorrect,
     required this.userData,
+    required String gameType,
+    required double score,
   });
 
   @override
