@@ -67,25 +67,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8,
+                  Text(
+                    'Clash of Champions',
+                    style: GoogleFonts.poppins(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.lightBlueAccent,
+                      letterSpacing: 1.5,
+                      shadows: [
+                        Shadow(
                           offset: Offset(0, 4),
+                          blurRadius: 8,
+                          color: Colors.black26,
                         ),
                       ],
                     ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/logo.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    textAlign: TextAlign.center,
                   ),
 
                   const SizedBox(height: 40),

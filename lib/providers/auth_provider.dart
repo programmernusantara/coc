@@ -9,29 +9,44 @@ class AuthProvider {
   final _supabase = SupabaseConfig.client;
 
   Future<Map<String, dynamic>> signInWithIdPassword({
-    // Hapus ? di return type
     required String userId,
     required String password,
   }) async {
-    final response = await _supabase
-        .from('users')
-        .select()
-        .eq('user_id', userId)
-        .single();
+    try {
+      final response = await _supabase
+          .from('users')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
 
-    if (response['password_hash'] != password) {
-      throw Exception('ID atau password salah');
+      if (response == null) {
+        throw Exception('User tidak ditemukan');
+      }
+
+      if (response['password_hash'] != password) {
+        throw Exception('ID atau password salah');
+      }
+
+      return response;
+    } catch (e) {
+      throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
-
-    return response;
   }
 
   Future<void> signOut() async {
-    // Karena kita tidak menggunakan auth Supabase, cukup clear state
+    // Implementasi logout jika diperlukan
   }
 
-  Map<String, dynamic>? get currentUser {
-    // Dalam implementasi nyata, Anda perlu menyimpan state user
-    return null;
+  Future<Map<String, dynamic>?> getCurrentUser(String userId) async {
+    try {
+      final response = await _supabase
+          .from('users')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
+      return response;
+    } catch (e) {
+      return null;
+    }
   }
 }

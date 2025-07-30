@@ -7,6 +7,7 @@ class ResultPage extends StatelessWidget {
   final Map<String, dynamic> userData;
   final String gameType;
   final double score;
+  final VoidCallback? onContinue;
 
   const ResultPage({
     super.key,
@@ -14,6 +15,7 @@ class ResultPage extends StatelessWidget {
     required this.userData,
     required this.gameType,
     required this.score,
+    this.onContinue,
   });
 
   @override
@@ -23,7 +25,7 @@ class ResultPage extends StatelessWidget {
         painter: GridBackgroundPainter(),
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -32,7 +34,7 @@ class ResultPage extends StatelessWidget {
                   size: 100,
                   color: isCorrect ? Colors.green : Colors.red,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Text(
                   isCorrect ? 'Jawaban Benar!' : 'Jawaban Salah',
                   style: GoogleFonts.poppins(
@@ -41,34 +43,39 @@ class ResultPage extends StatelessWidget {
                     color: isCorrect ? Colors.green : Colors.red,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 8),
+                Text(
+                  'Skor: $score',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Tombol Kembali ke Beranda
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
-                        ),
-                        (route) => false,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4FC3F7),
-                      elevation: 0,
+                    style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      side: const BorderSide(color: Color(0xFF4FC3F7)),
                     ),
                     child: Text(
                       'Kembali ke Login',
                       style: GoogleFonts.poppins(
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                        color: const Color(0xFF4FC3F7),
                       ),
                     ),
                   ),
