@@ -135,7 +135,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Game Babak 1',
+          'Game 1',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,

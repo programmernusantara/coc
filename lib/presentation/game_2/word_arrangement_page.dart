@@ -138,90 +138,148 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _buildGameContent(),
-    );
-  }
+          : Stack(
+              children: [
+                // Grid Background
+                CustomPaint(
+                  painter: GridBackgroundPainter(),
+                  size: Size.infinite,
+                ),
 
-  Widget _buildGameContent() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Pertanyaan
-          Text(
-            _question,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
-          // Area drag and drop minimalis
-          Expanded(
-            child: ReorderableListView(
-              padding: const EdgeInsets.only(bottom: 16),
-              onReorder: (oldIndex, newIndex) {
-                setState(() {
-                  if (newIndex > oldIndex) newIndex--;
-                  final String item = _words.removeAt(oldIndex);
-                  _words.insert(newIndex, item);
-                });
-              },
-              children: _words
-                  .map(
-                    (word) => ListTile(
-                      key: ValueKey(word),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      tileColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(color: Colors.grey.shade300, width: 1),
-                      ),
-                      title: Text(
-                        word,
+                // Konten Game
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      // Pertanyaan
+                      Text(
+                        _question,
                         style: GoogleFonts.poppins(
-                          fontSize: 16,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      trailing: const Icon(
-                        Icons.drag_handle,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
+                      const SizedBox(height: 24),
 
-          // Tombol Jawab
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _submitAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4FC3F7),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(300),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ReorderableListView(
+                              padding: const EdgeInsets.only(
+                                bottom: 16,
+                                top: 8,
+                              ),
+                              onReorder: (oldIndex, newIndex) {
+                                setState(() {
+                                  if (newIndex > oldIndex) newIndex--;
+                                  final String item = _words.removeAt(oldIndex);
+                                  _words.insert(newIndex, item);
+                                });
+                              },
+                              children: _words
+                                  .asMap()
+                                  .entries
+                                  .map(
+                                    (entry) => Container(
+                                      key: ValueKey(entry.value),
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                        horizontal: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withAlpha(10),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: ListTile(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 10,
+                                            ),
+                                        title: Text(
+                                          entry.value,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        trailing: const Icon(
+                                          Icons.drag_handle,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Tombol Jawab
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _submitAnswer,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4FC3F7),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            'Periksa Jawaban',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Periksa Jawaban',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
+}
+
+class GridBackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withAlpha(50)
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x <= size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y <= size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

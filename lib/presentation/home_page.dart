@@ -93,12 +93,12 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         _buildInfoChip(
                           icon: Icons.school,
-                          text: 'Kelas ${widget.userData['kelas']}',
+                          text: 'Kls ${widget.userData['kelas']}',
                         ),
                         const SizedBox(width: 8),
                         _buildInfoChip(
                           icon: Icons.home_work,
-                          text: 'Asrama ${widget.userData['asrama']}',
+                          text: 'Asr ${widget.userData['asrama']}',
                         ),
                       ],
                     ),
