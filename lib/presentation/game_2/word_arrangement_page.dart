@@ -120,7 +120,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Susun Sifat Wajib Allah',
+          'Game 2',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -245,7 +245,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                             elevation: 0,
                           ),
                           child: Text(
-                            'Periksa Jawaban',
+                            'Ok',
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,

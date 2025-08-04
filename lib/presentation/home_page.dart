@@ -1,6 +1,7 @@
 import 'package:coc/core/supabase_config.dart';
 import 'package:coc/presentation/game_1/number_game_page.dart';
 import 'package:coc/presentation/game_2/word_arrangement_page.dart';
+import 'package:coc/presentation/game_3/translation_game_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -347,15 +348,23 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         _buildGameCard(
+          title: 'Terjemahan',
+          icon: Icons.translate,
+          color: Colors.green,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    TranslationPuzzlePage(userData: widget.userData),
+              ),
+            );
+          },
+        ),
+        _buildGameCard(
           title: 'Game Logika',
           icon: Icons.psychology,
           color: Colors.orange,
-          onTap: () {},
-        ),
-        _buildGameCard(
-          title: 'Game Kata',
-          icon: Icons.text_fields,
-          color: Colors.purple,
           onTap: () {},
         ),
       ],
