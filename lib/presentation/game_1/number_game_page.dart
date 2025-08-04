@@ -39,10 +39,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
       final response = await SupabaseConfig.client
           .from('number_game_questions')
           .select()
-          .order(
-            'id',
-            ascending: false,
-          ) // Alternatif jika random() tidak bekerja
+          .order('id', ascending: false)
           .limit(1)
           .maybeSingle();
 
@@ -82,23 +79,15 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
     try {
       final isCorrect = selectedNumber == _correctAnswer;
 
-      // Debug sebelum menyimpan
-      debugPrint(
-        'Menyimpan hasil: User ${widget.userData['user_id']} menjawab $selectedNumber, jawaban benar $_correctAnswer',
-      );
-
-      // Di dalam _submitAnswer() pada NumberGamePage
-      final insertResponse = await SupabaseConfig.client
-          .from('game_results')
-          .insert({
+      final insertResponse =
+          await SupabaseConfig.client.from('game_results').insert({
             'user_id': widget.userData['user_id'],
             'game_type': 'number_game',
-            'number_question_id': _questionId, // Gunakan kolom spesifik
+            'number_question_id': _questionId,
             'user_answer': selectedNumber.toString(),
             'is_correct': isCorrect,
             'score': isCorrect ? 10 : 0,
-          })
-          .select();
+          }).select();
 
       debugPrint('Insert response: $insertResponse');
 
@@ -208,7 +197,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
               ),
               const SizedBox(height: 24),
 
-              // Tombol submit
+              // Tombol submit - DIUBAH DISINI (tanpa loading indicator)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -216,22 +205,24 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
                       ? null
                       : _submitAnswer,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4FC3F7),
+                    backgroundColor: selectedNumber == null || _isSubmitting
+                        ? Colors.grey[300]
+                        : const Color(0xFF4FC3F7),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          'Periksa Jawaban',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
+                  child: Text(
+                    'Periksa Jawaban',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: selectedNumber == null || _isSubmitting
+                          ? Colors.grey[600]
+                          : Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],
