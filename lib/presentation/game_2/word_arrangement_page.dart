@@ -1,4 +1,5 @@
 import 'package:coc/core/supabase_config.dart';
+import 'package:coc/presentation/home_page.dart';
 import 'package:coc/presentation/result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,9 +18,11 @@ class WordArrangementPage extends ConsumerStatefulWidget {
 class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
   List<String> _words = [];
   bool _isLoading = true;
+  bool _isSubmitting = false;
   String _question = '';
   List<String> _correctOrder = [];
   int _questionId = 0;
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
     try {
       setState(() {
         _isLoading = true;
+        _errorMessage = '';
       });
 
       final response = await SupabaseConfig.client
@@ -58,6 +62,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
       setState(() {
         _isLoading = false;
         _question = 'Tidak dapat memuat pertanyaan';
+        _errorMessage = 'Gagal memuat pertanyaan. Silakan coba lagi.';
       });
 
       if (mounted) {
@@ -69,13 +74,17 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
   }
 
   Future<void> _submitAnswer() async {
+    if (_isSubmitting || _words.isEmpty) return;
+
+    setState(() => _isSubmitting = true);
+
     try {
       final isCorrect = _listEquals(_words, _correctOrder);
 
       await SupabaseConfig.client.from('game_results').insert({
         'user_id': widget.userData['user_id'],
         'game_type': 'word_arrangement',
-        'question_id': _questionId,
+        'word_question_id': _questionId,
         'user_answer': _words.join(','),
         'is_correct': isCorrect,
         'score': isCorrect ? 20 : 0,
@@ -103,6 +112,10 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
       }
     }
   }
@@ -140,116 +153,106 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                // Grid Background
                 CustomPaint(
                   painter: GridBackgroundPainter(),
                   size: Size.infinite,
                 ),
-
-                // Konten Game
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      // Pertanyaan
-                      Text(
-                        _question,
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                      // Header Pertanyaan
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            if (_errorMessage.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  _errorMessage,
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            Text(
+                              _question,
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
 
+                      // Area Jawaban
                       Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withAlpha(300),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ReorderableListView(
-                              padding: const EdgeInsets.only(
-                                bottom: 16,
-                                top: 8,
-                              ),
-                              onReorder: (oldIndex, newIndex) {
-                                setState(() {
-                                  if (newIndex > oldIndex) newIndex--;
-                                  final String item = _words.removeAt(oldIndex);
-                                  _words.insert(newIndex, item);
-                                });
-                              },
-                              children: _words
-                                  .asMap()
-                                  .entries
-                                  .map(
-                                    (entry) => Container(
-                                      key: ValueKey(entry.value),
-                                      margin: const EdgeInsets.symmetric(
-                                        vertical: 6,
-                                        horizontal: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withAlpha(10),
-                                            blurRadius: 6,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 10,
-                                            ),
-                                        title: Text(
-                                          entry.value,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        trailing: const Icon(
-                                          Icons.drag_handle,
-                                          color: Colors.grey,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ReorderableListView(
+                            padding: const EdgeInsets.all(12),
+                            onReorder: (oldIndex, newIndex) {
+                              setState(() {
+                                if (newIndex > oldIndex) newIndex--;
+                                final item = _words.removeAt(oldIndex);
+                                _words.insert(newIndex, item);
+                              });
+                            },
+                            children: _words
+                                .map(
+                                  (word) => Card(
+                                    key: ValueKey(word),
+                                    elevation: 2,
+                                    child: ListTile(
+                                      title: Text(
+                                        word,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
                                         ),
                                       ),
+                                      trailing: const Icon(Icons.drag_handle),
                                     ),
-                                  )
-                                  .toList(),
-                            ),
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 24),
 
-                      // Tombol Jawab
-                      const SizedBox(height: 16),
+                      // Tombol Submit - DIUBAH DISINI (tanpa loading indicator)
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _submitAnswer,
+                          onPressed: _words.isEmpty || _isSubmitting
+                              ? null
+                              : _submitAnswer,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4FC3F7),
+                            backgroundColor: _words.isEmpty || _isSubmitting
+                                ? Colors.grey[300]
+                                : const Color(0xFF4FC3F7),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            elevation: 0,
+                            elevation: 2,
                           ),
                           child: Text(
-                            'Ok',
+                            'PERIKSA JAWABAN',
                             style: GoogleFonts.poppins(
                               fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              color: _words.isEmpty || _isSubmitting
+                                  ? Colors.grey[600]
+                                  : Colors.white,
                             ),
                           ),
                         ),
@@ -261,25 +264,4 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
             ),
     );
   }
-}
-
-class GridBackgroundPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.withAlpha(50)
-      ..strokeWidth = 1;
-
-    const gridSize = 40.0;
-
-    for (double x = 0; x <= size.width; x += gridSize) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y <= size.height; y += gridSize) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

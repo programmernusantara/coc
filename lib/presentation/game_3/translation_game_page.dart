@@ -1,5 +1,5 @@
 import 'package:coc/core/supabase_config.dart';
-import 'package:coc/presentation/game_2/word_arrangement_page.dart';
+import 'package:coc/presentation/home_page.dart';
 import 'package:coc/presentation/result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -103,10 +103,11 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
 
       final isCorrect = userAnswer == correctAnswer;
 
+      // Di dalam _submitAnswer() pada TranslationPuzzlePage
       await SupabaseConfig.client.from('game_results').insert({
         'user_id': widget.userData['user_id'],
         'game_type': 'translation_puzzle',
-        'question_id': _questionId,
+        'translation_question_id': _questionId, // Gunakan kolom spesifik
         'user_answer': userAnswer,
         'is_correct': isCorrect,
         'score': isCorrect ? 10 : 0,
@@ -121,7 +122,7 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
             isCorrect: isCorrect,
             userData: widget.userData,
             gameType: 'translation_puzzle',
-            score: isCorrect ? 15.0 : 0.0,
+            score: isCorrect ? 10.0 : 0.0,
             onContinue: () {
               Navigator.pop(context);
               _fetchQuestion();
@@ -142,6 +143,13 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          'Game 3',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: const Color(0xFF4FC3F7),
         centerTitle: true,
         actions: [
@@ -156,20 +164,17 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                // Grid Background
                 CustomPaint(
                   painter: GridBackgroundPainter(),
                   size: Size.infinite,
                 ),
-
-                // Konten Game
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      // Pertanyaan
+                      // Header Pertanyaan
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [
                             const SizedBox(height: 8),
@@ -186,67 +191,63 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Area Jawaban (RTL)
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: Container(
-                          height: 80,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFF4FC3F7),
-                              width: 2,
-                            ),
+                      // Area Jawaban
+                      Container(
+                        height: 80,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF4FC3F7),
+                            width: 2,
                           ),
+                        ),
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
                           child: _selectedWords.isEmpty
                               ? Center(
                                   child: Text(
                                     'Susun jawaban di sini',
                                     style: GoogleFonts.poppins(
-                                      color: Color.fromRGBO(
-                                        158,
-                                        158,
-                                        158,
-                                        1,
-                                      ), // Grey 500
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
                                     ),
                                   ),
                                 )
-                              : Wrap(
-                                  alignment: WrapAlignment.center,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: _selectedWords
-                                      .map(
-                                        (word) => Chip(
-                                          label: Text(
-                                            word,
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
+                              : Center(
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: _selectedWords
+                                        .map(
+                                          (word) => Chip(
+                                            label: Text(word),
+                                            backgroundColor: const Color(
+                                              0xFF4FC3F7,
                                             ),
+                                            deleteIcon: const Icon(
+                                              Icons.close,
+                                              size: 18,
+                                            ),
+                                            onDeleted: () =>
+                                                _onWordDeselected(word),
                                           ),
-                                          backgroundColor: const Color(
-                                            0xFF4FC3F7,
-                                          ),
-                                          deleteIcon: const Icon(
-                                            Icons.close,
-                                            size: 18,
-                                            color: Colors.white,
-                                          ),
-                                          onDeleted: () =>
-                                              _onWordDeselected(word),
-                                        ),
-                                      )
-                                      .toList(),
+                                        )
+                                        .toList(),
+                                  ),
                                 ),
                         ),
                       ),
                       const SizedBox(height: 24),
 
-                      // Kata-kata Pilihan (RTL)
+                      // Kata-kata Pilihan
                       Expanded(
                         child: Directionality(
                           textDirection: TextDirection.rtl,
@@ -254,40 +255,26 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
-                                  childAspectRatio: 1.5,
+                                  childAspectRatio: 1.8,
                                   crossAxisSpacing: 12,
                                   mainAxisSpacing: 12,
                                 ),
                             itemCount: _words.length,
-                            itemBuilder: (context, index) => Material(
-                              color: Colors.transparent,
+                            itemBuilder: (context, index) => Card(
+                              elevation: 2,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
                                 onTap: () => _onWordSelected(_words[index]),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(
-                                          128,
-                                          128,
-                                          128,
-                                          0.1,
-                                        ),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Center(
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
                                     child: Text(
                                       _words[index],
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ),

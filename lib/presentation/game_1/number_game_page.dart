@@ -87,15 +87,18 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
         'Menyimpan hasil: User ${widget.userData['user_id']} menjawab $selectedNumber, jawaban benar $_correctAnswer',
       );
 
-      final insertResponse =
-          await SupabaseConfig.client.from('game_results').insert({
+      // Di dalam _submitAnswer() pada NumberGamePage
+      final insertResponse = await SupabaseConfig.client
+          .from('game_results')
+          .insert({
             'user_id': widget.userData['user_id'],
             'game_type': 'number_game',
-            'question_id': _questionId,
-            'user_answer': selectedNumber,
+            'number_question_id': _questionId, // Gunakan kolom spesifik
+            'user_answer': selectedNumber.toString(),
             'is_correct': isCorrect,
             'score': isCorrect ? 10 : 0,
-          }).select();
+          })
+          .select();
 
       debugPrint('Insert response: $insertResponse');
 
@@ -222,7 +225,7 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
                   child: _isSubmitting
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(
-                          'Jawaban',
+                          'Periksa Jawaban',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
