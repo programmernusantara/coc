@@ -135,13 +135,6 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
         ),
         backgroundColor: const Color(0xFF4FC3F7),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchQuestion,
-            tooltip: 'Muat ulang pertanyaan',
-          ),
-        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

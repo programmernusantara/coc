@@ -1,5 +1,4 @@
 import 'package:coc/core/supabase_config.dart';
-import 'package:coc/presentation/home_page.dart';
 import 'package:coc/presentation/result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -103,11 +102,10 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
 
       final isCorrect = userAnswer == correctAnswer;
 
-      // Di dalam _submitAnswer() pada TranslationPuzzlePage
       await SupabaseConfig.client.from('game_results').insert({
         'user_id': widget.userData['user_id'],
         'game_type': 'translation_puzzle',
-        'translation_question_id': _questionId, // Gunakan kolom spesifik
+        'translation_question_id': _questionId,
         'user_answer': userAnswer,
         'is_correct': isCorrect,
         'score': isCorrect ? 10 : 0,
@@ -121,7 +119,7 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
           builder: (context) => ResultPage(
             isCorrect: isCorrect,
             userData: widget.userData,
-            gameType: 'translation_puzzle',
+            gameType: 'Terjemahan Arab',
             score: isCorrect ? 10.0 : 0.0,
             onContinue: () {
               Navigator.pop(context);
@@ -141,6 +139,10 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    final isDesktop = screenWidth > 900;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -152,169 +154,229 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
         ),
         backgroundColor: const Color(0xFF4FC3F7),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _fetchQuestion,
-            tooltip: 'Muat ulang pertanyaan',
-          ),
-        ],
+        elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                CustomPaint(
-                  painter: GridBackgroundPainter(),
-                  size: Size.infinite,
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).primaryColor,
+              ),
+            )
+          : CustomPaint(
+              painter: _GridBackgroundPainter(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop
+                      ? 60
+                      : isTablet
+                      ? 40
+                      : 16,
+                  vertical: 16,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // Header Pertanyaan
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 8),
-                            Text(
-                              _question,
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.center,
+                child: Column(
+                  children: [
+                    // Question Section
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Terjemahkan ke Bahasa Arab:',
+                            style: GoogleFonts.poppins(
+                              fontSize: isTablet ? 18 : 16,
+                              color: Colors.grey[600],
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _question,
+                            style: GoogleFonts.poppins(
+                              fontSize: isTablet ? 22 : 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 24),
+                    ),
+                    const SizedBox(height: 24),
 
-                      // Area Jawaban
-                      Container(
-                        height: 80,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFF4FC3F7),
-                            width: 2,
+                    // Answer Area - Minimalist Version without Box
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            'Jawaban Anda:',
+                            style: GoogleFonts.poppins(
+                              fontSize: isTablet ? 16 : 14,
+                              color: Colors.grey[600],
+                            ),
                           ),
                         ),
-                        child: Directionality(
-                          textDirection: TextDirection.rtl,
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
                           child: _selectedWords.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    'Susun jawaban di sini',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
-                                    ),
+                              ? Text(
+                                  'Pilih kata-kata di bawah untuk menyusun jawaban',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.grey[500],
+                                    fontSize: isTablet ? 16 : 14,
+                                    fontStyle: FontStyle.italic,
                                   ),
                                 )
-                              : Center(
-                                  child: Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    alignment: WrapAlignment.center,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    children: _selectedWords
-                                        .map(
-                                          (word) => Chip(
-                                            label: Text(word),
-                                            backgroundColor: const Color(
-                                              0xFF4FC3F7,
+                              : Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  alignment: WrapAlignment.start,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: _selectedWords
+                                      .map(
+                                        (word) => InputChip(
+                                          label: Text(
+                                            word,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: isTablet ? 16 : 14,
                                             ),
-                                            deleteIcon: const Icon(
-                                              Icons.close,
-                                              size: 18,
-                                            ),
-                                            onDeleted: () =>
-                                                _onWordDeselected(word),
                                           ),
-                                        )
-                                        .toList(),
-                                  ),
+                                          backgroundColor: const Color(
+                                            0xFF4FC3F7,
+                                          ),
+                                          labelStyle: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                          deleteIcon: const Icon(
+                                            Icons.close,
+                                            size: 18,
+                                            color: Colors.white,
+                                          ),
+                                          onDeleted: () =>
+                                              _onWordDeselected(word),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
                                 ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
-                      // Kata-kata Pilihan
-                      Expanded(
-                        child: Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  childAspectRatio: 1.8,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
-                                ),
-                            itemCount: _words.length,
-                            itemBuilder: (context, index) => Card(
-                              elevation: 2,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
-                                onTap: () => _onWordSelected(_words[index]),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      _words[index],
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
+                    // Word Selection Grid
+                    Expanded(
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: isDesktop
+                                    ? 4
+                                    : isTablet
+                                    ? 3
+                                    : 2,
+                                childAspectRatio: isDesktop
+                                    ? 2.5
+                                    : isTablet
+                                    ? 2
+                                    : 1.8,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
                               ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Tombol Submit
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _selectedWords.isEmpty
-                              ? null
-                              : _submitAnswer,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4FC3F7),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          itemCount: _words.length,
+                          itemBuilder: (context, index) => Card(
+                            elevation: 2,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            elevation: 2,
-                          ),
-                          child: Text(
-                            'PERIKSA JAWABAN',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => _onWordSelected(_words[index]),
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(isTablet ? 12 : 8),
+                                  child: Text(
+                                    _words[index],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: isTablet ? 18 : 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Submit Button
+                    SizedBox(
+                      width: isDesktop
+                          ? 400
+                          : isTablet
+                          ? 300
+                          : double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _selectedWords.isEmpty
+                            ? null
+                            : _submitAnswer,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4FC3F7),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          'PERIKSA JAWABAN',
+                          style: GoogleFonts.poppins(
+                            fontSize: isTablet ? 18 : 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
-              ],
+              ),
             ),
     );
   }
+}
+
+class _GridBackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withAlpha(50)
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x <= size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y <= size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
