@@ -182,14 +182,6 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
                       child: Column(
                         children: [
                           Text(
-                            'Terjemahkan ke Bahasa Arab:',
-                            style: GoogleFonts.poppins(
-                              fontSize: isTablet ? 18 : 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
                             _question,
                             style: GoogleFonts.poppins(
                               fontSize: isTablet ? 22 : 18,

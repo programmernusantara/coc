@@ -87,7 +87,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
         'word_question_id': _questionId,
         'user_answer': _words.join(','),
         'is_correct': isCorrect,
-        'score': isCorrect ? 20 : 0,
+        'score': isCorrect ? 10 : 0,
       });
 
       if (!mounted) return;
@@ -99,7 +99,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
             isCorrect: isCorrect,
             userData: widget.userData,
             gameType: 'word_arrangement',
-            score: isCorrect ? 20.0 : 0.0,
+            score: isCorrect ? 10.0 : 0.0,
             onContinue: () {
               Navigator.pop(context);
               _fetchQuestion();

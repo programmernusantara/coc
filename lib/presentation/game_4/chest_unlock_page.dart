@@ -84,7 +84,7 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
           .single();
 
       final isCorrect = enteredCode == response['correct_code'];
-      final score = isCorrect ? 25 : 0;
+      final score = isCorrect ? 10 : 0;
 
       // Save result
       await SupabaseConfig.client.from('game_results').insert({
