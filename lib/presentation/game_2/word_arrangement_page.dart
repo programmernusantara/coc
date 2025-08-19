@@ -154,7 +154,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.1), // Fixed using RGBO
+              color: const Color.fromRGBO(0, 0, 0, 0.1),
               spreadRadius: 1,
               blurRadius: 4,
               offset: const Offset(0, 2),
@@ -196,52 +196,12 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
     );
   }
 
-  Widget _buildSequenceIndicator() {
-    return Container(
-      height: 60,
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Center(
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: _selectedIndices.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (context, position) {
-            return Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFF4FC3F7),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Center(
-                child: Text(
-                  '${position + 1}',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Game Susun Kata',
+          'Game 2',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -265,22 +225,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                       // Pertanyaan
                       Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color.fromRGBO(
-                                0,
-                                0,
-                                0,
-                                0.1,
-                              ), // Fixed using RGBO
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
+
                         child: Text(
                           _question,
                           style: GoogleFonts.poppins(
@@ -310,8 +255,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                         ),
                       ),
 
-                      // Indikator Urutan
-                      _buildSequenceIndicator(),
+                      const SizedBox(height: 16),
 
                       // Tombol Submit
                       SizedBox(

@@ -14,14 +14,13 @@ class ChestUnlockPage extends StatefulWidget {
 
 class _ChestUnlockPageState extends State<ChestUnlockPage> {
   final List<TextEditingController> _codeControllers = List.generate(
-    4,
+    6,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   int? _currentQuestionId;
   String? _questionText;
   bool _isLoading = true;
-  bool _showError = false;
 
   @override
   void initState() {
@@ -70,10 +69,7 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
     if (_currentQuestionId == null) return;
 
     final enteredCode = _codeControllers.map((c) => c.text).join();
-    if (enteredCode.length != 4) {
-      setState(() => _showError = true);
-      return;
-    }
+    if (enteredCode.isEmpty) return; // Only prevent empty submission
 
     try {
       // Get correct answer
@@ -189,12 +185,12 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
 
                 // Password Input Section
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(4, (index) {
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(6, (index) {
                       return SizedBox(
-                        width: 60,
+                        width: 50,
                         child: TextField(
                           controller: _codeControllers[index],
                           focusNode: _focusNodes[index],
@@ -210,9 +206,7 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
                             counterText: '',
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: _showError
-                                    ? Colors.red
-                                    : Colors.grey[400]!,
+                                color: Colors.grey[400]!,
                                 width: 2,
                               ),
                               borderRadius: BorderRadius.circular(10),
@@ -229,8 +223,7 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
                             ),
                           ),
                           onChanged: (value) {
-                            setState(() => _showError = false);
-                            if (value.length == 1 && index < 3) {
+                            if (value.length == 1 && index < 5) {
                               FocusScope.of(
                                 context,
                               ).requestFocus(_focusNodes[index + 1]);
@@ -245,18 +238,6 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
                     }),
                   ),
                 ),
-
-                if (_showError)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(
-                      'Harap isi semua digit',
-                      style: GoogleFonts.poppins(
-                        color: Colors.red,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
                 const SizedBox(height: 40),
 
                 // Submit Button
