@@ -137,18 +137,6 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
     final isWideScreen = screenWidth > 600;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Game 3',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -276,20 +264,25 @@ class _TranslationPuzzlePageState extends ConsumerState<TranslationPuzzlePage> {
                   const SizedBox(height: 16),
 
                   // Submit Button
+                  // Submit Button
                   SizedBox(
-                    width: isWideScreen ? 300 : double.infinity,
+                    width: 200,
                     child: ElevatedButton(
                       onPressed: _selectedWords.isEmpty ? null : _submitAnswer,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF4FC3F7),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: Text(
-                        'Periksa Jawaban',
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                        'PERIKSA JAWABAN',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

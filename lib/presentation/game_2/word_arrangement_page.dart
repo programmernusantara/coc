@@ -199,17 +199,6 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Game 2',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4FC3F7),
-        centerTitle: true,
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Stack(
@@ -258,8 +247,9 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                       const SizedBox(height: 16),
 
                       // Tombol Submit
+                      // Tombol Submit
                       SizedBox(
-                        width: double.infinity,
+                        width: 200,
                         child: ElevatedButton(
                           onPressed: _selectedIndices.isEmpty || _isSubmitting
                               ? null
@@ -271,15 +261,14 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                                 : const Color(0xFF4FC3F7),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            elevation: 2,
                           ),
                           child: Text(
                             'PERIKSA JAWABAN',
                             style: GoogleFonts.poppins(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
                               color: _selectedIndices.isEmpty || _isSubmitting
                                   ? Colors.grey[600]
                                   : Colors.white,

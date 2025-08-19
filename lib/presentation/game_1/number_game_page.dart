@@ -125,17 +125,6 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Game 1',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4FC3F7),
-        centerTitle: true,
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _buildGameContent(),
@@ -191,8 +180,9 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
               const SizedBox(height: 24),
 
               // Tombol submit - DIUBAH DISINI (tanpa loading indicator)
+              // Tombol submit - DIUBAH untuk konsistensi dengan Game 4
               SizedBox(
-                width: double.infinity,
+                width: 200,
                 child: ElevatedButton(
                   onPressed: selectedNumber == null || _isSubmitting
                       ? null
@@ -203,14 +193,14 @@ class _NumberGamePageState extends ConsumerState<NumberGamePage> {
                         : const Color(0xFF4FC3F7),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Text(
-                    'Periksa Jawaban',
+                    'PERIKSA JAWABAN',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                       color: selectedNumber == null || _isSubmitting
                           ? Colors.grey[600]
                           : Colors.white,

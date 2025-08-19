@@ -139,18 +139,6 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Game 4',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4FC3F7),
-        centerTitle: true,
-        elevation: 0,
-      ),
       body: CustomPaint(
         painter: _GridBackgroundPainter(),
         child: Center(
