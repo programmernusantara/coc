@@ -1,8 +1,9 @@
 import 'package:coc/presentation/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-class ResultPage extends StatelessWidget {
+class ResultPage extends StatefulWidget {
   final bool isCorrect;
   final Map<String, dynamic> userData;
   final String gameType;
@@ -19,6 +20,44 @@ class ResultPage extends StatelessWidget {
   });
 
   @override
+  State<ResultPage> createState() => _ResultPageState();
+}
+
+class _ResultPageState extends State<ResultPage> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isSoundPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _playSound();
+  }
+
+  Future<void> _playSound() async {
+    if (_isSoundPlaying) return;
+
+    setState(() => _isSoundPlaying = true);
+
+    try {
+      if (widget.isCorrect) {
+        // Suara untuk jawaban benar (bisa diganti dengan file suara Anda)
+        await _audioPlayer.play(AssetSource('sounds/benar.mp3'));
+      } else {
+        // Suara untuk jawaban salah (bisa diganti dengan file suara Anda)
+        await _audioPlayer.play(AssetSource('sounds/salah.mp3'));
+      }
+    } finally {
+      setState(() => _isSoundPlaying = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomPaint(
@@ -30,22 +69,22 @@ class ResultPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  isCorrect ? Icons.check_circle : Icons.cancel,
+                  widget.isCorrect ? Icons.check_circle : Icons.cancel,
                   size: 100,
-                  color: isCorrect ? Colors.green : Colors.red,
+                  color: widget.isCorrect ? Colors.green : Colors.red,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  isCorrect ? 'Jawaban Benar!' : 'Jawaban Salah',
+                  widget.isCorrect ? 'Jawaban Benar!' : 'Jawaban Salah',
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: isCorrect ? Colors.green : Colors.red,
+                    color: widget.isCorrect ? Colors.green : Colors.red,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Skor: $score',
+                  'Skor: ${widget.score}',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     color: Colors.black87,
