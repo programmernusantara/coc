@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Class of Champions',
+          'Class of Bakid',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -322,7 +322,7 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
         _buildGameCard(
-          title: 'Game Angka',
+          title: 'Game 1',
           icon: Icons.numbers,
           color: Colors.blue,
           onTap: () {
@@ -335,7 +335,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         _buildGameCard(
-          title: 'Susun Kata',
+          title: 'Game 2',
           icon: Icons.text_fields,
           color: Colors.purple,
           onTap: () {
@@ -349,7 +349,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         _buildGameCard(
-          title: 'Terjemahan',
+          title: 'Game 3',
           icon: Icons.translate,
           color: Colors.green,
           onTap: () {
@@ -363,7 +363,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         _buildGameCard(
-          title: 'Buka Peti',
+          title: 'Game 4',
           icon: Icons.lock_open,
           color: Colors.amber,
           onTap: () {

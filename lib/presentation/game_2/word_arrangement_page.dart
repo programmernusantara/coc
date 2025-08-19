@@ -22,7 +22,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
   String _question = '';
   List<String> _correctOrder = [];
   int _questionId = 0;
-  String _errorMessage = '';
+  List<int> _selectedIndices = [];
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
     try {
       setState(() {
         _isLoading = true;
-        _errorMessage = '';
+        _selectedIndices = [];
       });
 
       final response = await SupabaseConfig.client
@@ -62,7 +62,6 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
       setState(() {
         _isLoading = false;
         _question = 'Tidak dapat memuat pertanyaan';
-        _errorMessage = 'Gagal memuat pertanyaan. Silakan coba lagi.';
       });
 
       if (mounted) {
@@ -74,18 +73,19 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
   }
 
   Future<void> _submitAnswer() async {
-    if (_isSubmitting || _words.isEmpty) return;
+    if (_isSubmitting || _selectedIndices.isEmpty) return;
 
     setState(() => _isSubmitting = true);
 
     try {
-      final isCorrect = _listEquals(_words, _correctOrder);
+      final userOrder = _selectedIndices.map((index) => _words[index]).toList();
+      final isCorrect = _listEquals(userOrder, _correctOrder);
 
       await SupabaseConfig.client.from('game_results').insert({
         'user_id': widget.userData['user_id'],
         'game_type': 'word_arrangement',
         'word_question_id': _questionId,
-        'user_answer': _words.join(','),
+        'user_answer': userOrder.join(','),
         'is_correct': isCorrect,
         'score': isCorrect ? 10 : 0,
       });
@@ -128,12 +128,120 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
     return true;
   }
 
+  void _selectWord(int index) {
+    setState(() {
+      if (_selectedIndices.contains(index)) {
+        _selectedIndices.remove(index);
+      } else {
+        _selectedIndices.add(index);
+      }
+    });
+  }
+
+  Widget _buildDominoCard(String word, int index, bool isSelected) {
+    return GestureDetector(
+      onTap: () => _selectWord(index),
+      child: Container(
+        width: 80,
+        height: 120,
+        margin: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF4FC3F7) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF4FC3F7) : Colors.grey[400]!,
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.1), // Fixed using RGBO
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isSelected)
+                Text(
+                  '${_selectedIndices.indexOf(index) + 1}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  word,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSequenceIndicator() {
+    return Container(
+      height: 60,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Center(
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: _selectedIndices.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, position) {
+            return Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF4FC3F7),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Center(
+                child: Text(
+                  '${position + 1}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Game 2',
+          'Game Susun Kata',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -154,87 +262,72 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      // Header Pertanyaan
+                      // Pertanyaan
                       Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            if (_errorMessage.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Text(
-                                  _errorMessage,
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.red,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            Text(
-                              _question,
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.center,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color.fromRGBO(
+                                0,
+                                0,
+                                0,
+                                0.1,
+                              ), // Fixed using RGBO
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Area Jawaban
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                        child: Text(
+                          _question,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
-                          child: ReorderableListView(
-                            padding: const EdgeInsets.all(12),
-                            onReorder: (oldIndex, newIndex) {
-                              setState(() {
-                                if (newIndex > oldIndex) newIndex--;
-                                final item = _words.removeAt(oldIndex);
-                                _words.insert(newIndex, item);
-                              });
-                            },
-                            children: _words
-                                .map(
-                                  (word) => Card(
-                                    key: ValueKey(word),
-                                    elevation: 2,
-                                    child: ListTile(
-                                      title: Text(
-                                        word,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      trailing: const Icon(Icons.drag_handle),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Kartu Domino
+                      Expanded(
+                        child: Center(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: List.generate(_words.length, (index) {
+                              return _buildDominoCard(
+                                _words[index],
+                                index,
+                                _selectedIndices.contains(index),
+                              );
+                            }),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
 
-                      // Tombol Submit - DIUBAH DISINI (tanpa loading indicator)
+                      // Indikator Urutan
+                      _buildSequenceIndicator(),
+
+                      // Tombol Submit
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _words.isEmpty || _isSubmitting
+                          onPressed: _selectedIndices.isEmpty || _isSubmitting
                               ? null
                               : _submitAnswer,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _words.isEmpty || _isSubmitting
+                            backgroundColor:
+                                _selectedIndices.isEmpty || _isSubmitting
                                 ? Colors.grey[300]
                                 : const Color(0xFF4FC3F7),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             elevation: 2,
                           ),
@@ -243,7 +336,7 @@ class _WordArrangementPageState extends ConsumerState<WordArrangementPage> {
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: _words.isEmpty || _isSubmitting
+                              color: _selectedIndices.isEmpty || _isSubmitting
                                   ? Colors.grey[600]
                                   : Colors.white,
                             ),

@@ -68,7 +68,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 children: [
                   Text(
-                    'Clash of Champions',
+                    'Clash of Bakid',
                     style: GoogleFonts.poppins(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
