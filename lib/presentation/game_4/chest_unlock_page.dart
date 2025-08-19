@@ -241,7 +241,7 @@ class _ChestUnlockPageState extends State<ChestUnlockPage> {
                       ),
                     ),
                     child: Text(
-                      'VERIFIKASI',
+                      'PERIKSA JAWABAN',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
